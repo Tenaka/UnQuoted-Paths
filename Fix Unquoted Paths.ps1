@@ -11,7 +11,7 @@ Function UnQuotedPathsFix
     Write-Host "<#-----------------------------" -ForegroundColor Green
     Write-Host " "
     Write-Host "Function Name: " -ForegroundColor Green -NoNewline
-    write-host " FuncName" -ForegroundColor Yellow
+    write-host "$FuncName" -ForegroundColor Yellow
     Write-Host " "
     Write-Host "Description: " -ForegroundColor Green -NoNewline
     Write-Host "$funcDescription" -ForegroundColor Green 
