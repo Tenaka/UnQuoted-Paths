@@ -1,7 +1,7 @@
    
     <#
     .Synopsis
-    Checks for unquoted path vulnerbilities.
+    Checks for unquoted path vulnerabilities.
    
     .DESCRIPTION
    
@@ -9,7 +9,7 @@
     
     .VERSION
     210617.01 - Created
-    221025.01 - Updated to fix issue where .sys files 
+    221025.01 - Updated to fix the issue with .sys files not reporting
     #>     
             $secure10 = "C:\Secure10"
             $OutFunc = "UnQuoted" 
@@ -62,3 +62,4 @@
         }
 
     }
+    $fragUnQuoted
