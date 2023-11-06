@@ -22,9 +22,9 @@ Function UnQuotedPathsFix
     #ID Unquoted paths
     $vulnSvc = Get-CimInstance win32_service | foreach{$_} | 
     where {($_.pathname -ne $null) -and ($_.pathname.trim() -ne "")} | 
-    where {-not $_.pathname.startswith("`"")} | 
-    where {($_.pathname.substring(0, $_.pathname.indexof(".sys") + 4 )) -match ".* .*" `
-    -or ($_.pathname.substring(0, $_.pathname.indexof(".exe") + 4 )) -match ".* .*" }
+    where {-not $_.pathname.startswith("`"")} |
+    where {($_.pathname.substring(0, $_.pathname.indexof(".sys") + 4 )) -match ".* .*" -or ($_.pathname.substring(0, $_.pathname.indexof(".exe") + 4 ))  -match ".* .*" -or ($_.pathname.substring(0, $_.pathname.indexof(".SYS") + 4 )) -match ".* .*" -or ($_.pathname.substring(0, $_.pathname.indexof(".EXE") + 4 ))  -match ".* .*"}
+
 
     #Fix Unquoted paths
     foreach ($unQSvc in $vulnSvc)
