@@ -1,4 +1,4 @@
-﻿
+
 $drv = (psdrive | where{$_.Free -eq 0})
 
 if($drv.free -eq "0" -and $_.name -ne "C")
@@ -140,6 +140,51 @@ else
         $folders = "Y"
 
         write-host " "
+
+
+<#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+                          OS Details
+<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>#>
+    splatVariables
+    $SecCheck = "Gathering Host and Account Details"
+    $exceptionMessage="No errors gathered"
+    SecureReportError($SecCheck,$exceptionMessage)
+
+    #OS Details
+    $fragHost = Get-CimInstance -ClassName win32_computersystem -ErrorAction SilentlyContinue
+    $OS = Get-CimInstance -ClassName win32_operatingsystem -ErrorAction SilentlyContinue
+    $bios = Get-CimInstance -ClassName win32_bios  -ErrorAction SilentlyContinue | Select-Object Name,Manufacturer,SerialNumber,SMBIOSBIOSVersion,ReleaseDate
+    $cpu = Get-CimInstance -ClassName win32_processor -ErrorAction SilentlyContinue
+
+    $fragPatchversion=@()
+    #$OSBuildNumber = (Get-ItemProperty HKLM:\system\Software\Microsoft\BuildLayers\OSClient).buildnumber
+    #$OSPatchNumber = (Get-ItemProperty HKLM:\system\Software\Microsoft\BuildLayers\OSClient).BuildQfe
+    [string]$OSPatchversion = & cmd.exe /c ver.exe
+    $OSPatchverSpace = [string]$OSPatchversion.Replace(" Microsoft","Microsoft")
+
+    $newObjPatchversion = New-Object -TypeName PSObject
+        Add-Member -InputObject $newObjPatchversion -Type NoteProperty -Name WindowsPatchVersion -Value $OSPatchverSpace
+    $fragPatchversion += $newObjPatchversion
+
+    $BiosUEFI=@()
+
+    $BiosName = $bios.Name
+    $BiosManufacturer = $bios.Manufacturer
+    $BiosSerial = $bios.SerialNumber
+    $BiosSMBVersion = $bios.SMBIOSBIOSVersion
+    $ReleaseDate = $bios.ReleaseDate
+
+    $date180days = (Get-Date).AddDays(-180)
+    if ($date180days -gt $ReleaseDate){$ReleaseDate = "Warning $($ReleaseDate) Warning"}
+
+    $newObjBiosUEFI = New-Object -TypeName PSObject
+        Add-Member -InputObject $newObjBiosUEFI -Type NoteProperty -Name BiosName -Value $BiosName
+        Add-Member -InputObject $newObjBiosUEFI -Type NoteProperty -Name BiosManufacturer -Value $BiosManufacturer
+        Add-Member -InputObject $newObjBiosUEFI -Type NoteProperty -Name BiosSerial -Value $BiosSerial
+        Add-Member -InputObject $newObjBiosUEFI -Type NoteProperty -Name BiosSMBVersion -Value $BiosSMBVersion
+        Add-Member -InputObject $newObjBiosUEFI -Type NoteProperty -Name ReleaseDate -Value $ReleaseDate
+    $BiosUEFI += $newObjBiosUEFI
+    $BiosUEFI | Out-File "$($secureReporOutPut)\OSHostDetails.log" 
 
 
 <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
@@ -815,7 +860,7 @@ if ($folders -eq "y")
 
    <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
              Searching for Writeable Registry Vulnerabilities
-   <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>#>
+    <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>#>
         splatVariables
         $SecCheck = "Searching for Writeable Registry Hive Vulnerabilities"
         $exceptionMessage="No errors gathered"
@@ -1088,7 +1133,7 @@ if ($folders -eq "y")
   cd C:\
 
 
-<#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+  <#<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
                         RUNNING JOBS
 <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>#>
         try
@@ -1670,6 +1715,15 @@ if ($folders -eq "y")
         <div class="container">
 	
 	    <h1 align=center style='text-align:center'>$basePNG</h1>
+
+	    <div class="tabs">
+		    <div class="headerTab">
+			    <input type="radio" id="Summary" name="headerTabs" checked>
+			    <label for="Summary">Compliance Status</label>
+			    <div class="contentTab">
+				    <p>$frag_Host $frag_OS $frag_Bios $frag_Cpu </p>
+			    </div>
+		    </div>
 
 		    <div class="headerTab">
 			    <input type="radio" id="FileReg" name="headerTabs">
